@@ -1,0 +1,16 @@
+{
+  "name": "充点电",
+  "short_name": "充电",
+  "start_url": "/",
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "orientation": "natural",
+  "icons": [
+    {
+      "src": "/coin.svg",
+      "sizes": "200x200",
+      "type": "image/svg+xml"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import coinLogo from "/coin.svg";
 import "./App.css";
 import VConsole from "vconsole";
@@ -12,39 +12,41 @@ function App() {
   const [status, updateStatus] = useState(false);
   const [number, setNumber] = useState(0);
   const [bnumber, setbNumber] = useState(0);
+  // const [batteryManager, setbatteryManager] = useState(null);
+  const batteryManager = useRef(null);
   const [msg, setMsg] = useState(false);
   const [msgtext, setMsgtext] = useState("");
-  let batteryManager, timer;
+  let timer;
 
   useEffect(() => {
-    if (!batteryManager) {
-      batteryManager = 1;
-      navigator.getBattery().then((res) => {
-        batteryManager = res;
-        console.log(batteryManager, "Battery manager");
-        updateStatus(batteryManager.charging);
-        chargingChangeSetnumber(batteryManager.charging);
-        // chargingchange
-        batteryManager.addEventListener("chargingchange", (event) => {
-          updateStatus(batteryManager.charging);
-          chargingChangeSetnumber(batteryManager.charging);
-        });
+    initBatteryManager();
+  }, []);
+
+  const initBatteryManager = async () => {
+    if (!batteryManager?.current) {
+      const res = await navigator.getBattery();
+      // await setbatteryManager(() => res);
+      batteryManager.current = res;
+      updateStatus(batteryManager.current?.charging);
+      chargingChangeSetnumber(batteryManager.current?.charging);
+      // chargingchange
+      batteryManager.current.addEventListener("chargingchange", (event) => {
+        updateStatus(batteryManager.current?.charging);
+        chargingChangeSetnumber(batteryManager.current?.charging);
       });
     }
-  }, []);
+  };
 
   const chargingChangeSetnumber = (charging) => {
     if (charging) {
       const plused = Math.random() * 100;
       setNumber((pre) => {
-        console.log(pre, "number");
         setbNumber(() => pre);
         return pre + plused;
       });
       timer = setInterval(() => {
         const plused = Math.random() * 100;
         setNumber((pre) => {
-          console.log(pre, "number");
           setbNumber(() => pre);
           return pre + plused;
         });
@@ -56,23 +58,19 @@ function App() {
   };
 
   const chargeNumber = () => {
-    if (batteryManager?.charging) {
-      // alert("正在充值！");
+    if (batteryManager.current?.charging) {
       setMsgtext("正在充值！");
       setMsg(true);
     } else {
-      // alert("请连接充电器！");
       setMsgtext("请连接充电器！");
       setMsg(true);
     }
   };
 
   const withdraw = () => {
-    // alert("你想得美呢！");
     setMsgtext("你想得美呢！");
     setMsg(true);
   };
-
 
   return (
     <>
@@ -99,7 +97,7 @@ function App() {
         <span>提现</span>
       </div>
       <Modal visible={msg} setVisible={setMsg}>
-        <p style={{ margin: 0,textAlign:'center' }}>{msgtext}</p>
+        <p style={{ margin: 0, textAlign: "center" }}>{msgtext}</p>
       </Modal>
     </>
   );
